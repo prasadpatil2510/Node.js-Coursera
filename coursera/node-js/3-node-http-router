@@ -1,0 +1,68 @@
+const exp = require('constants');
+const express = require('express'), http = require('http');
+const bodyParser = require('body-parser');
+
+const hostname ='localhost';
+const port = 3000;
+const morgan = require('morgan');
+const app = express();
+app.use(morgan('dev'));
+app.use(bodyParser.json());
+
+app.all('/dishes',(req, res, next)=>{
+    res.statusCode = 200 ;
+    res.setHeader('Content-Type','text/plain');
+    next();
+});
+
+//---------------------------------------------------------------
+app.get('/dishes',(req,res, next) =>{
+    res.end('Will send all the dishes to you!');
+});
+
+app.post('/dishes', (req, res, next)=>{
+    res.end('Will add the dish: ' + req.body.name + ' with details '+ req.body.description)
+});
+
+app.put('/dishes', (req, res, next)=>{
+    res.statusCode = 403 // code for Operation not supported
+    res.end('Put not supported on /dishes');
+});
+
+app.delete('/dishes', (req,res,next)=>{
+    res.end('Deleting all the dishes!');
+});
+//--------------------------------------------------------------
+app.get('/dishes/:dishId', (req, res, next)=>{
+    res.end('Sending all the dishes to you!: ' + req.params.dishId );
+})
+
+app.post('/dishes/:dishId', (req, res, next)=>{
+    res.statusCode = 403 //Operation not supported
+    res.end('POST operation not supported on /dishes/id');
+})
+
+app.put('/dishes/:dishId', (req, res, next)=>{
+    res.write('Updating the dish with id: ' + res.params.dishId + '/n')
+    res.send('Will update the dish: ' + req.body.name + ' with details '+ req.params.description);
+})
+
+app.delete('/dishes/:dishId', (req, res, next)=>{
+    res.send('Dishes are all deleted'); 
+})
+
+
+//---------------------------------------------------------------
+app.use((req,res,next)=>{
+    
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`<html><body><h1> This is an express server </h1></body></html>`)
+})
+app.use(morgan('dev'));
+app.use(express.static(__dirname + '/public'))
+const server = http.createServer(app);
+
+server.listen(port, hostname, ()=>{
+    console.log(`Server is running at http://${hostname}:${port}/`);
+})
